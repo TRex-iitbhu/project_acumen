@@ -4,7 +4,7 @@ import time
 GPIO.setmode(GPIO.BOARD)
 
 #randomly choosen
-RControlPin = [7, 11, 13, 15] #right motor pins
+RControlPin = [26, 19, 6, 13)] #right motor pins
 LControlPin = [6, 9, 14, 12] #left motor pins
 FLed = 2
 GPIO.setup(FLed, GPIO.OUT)
@@ -72,30 +72,6 @@ def ForwardStep():
             '''
 
     GPIO.output(FLed, 0)
-'''
-for halfstep in range(8):
-    for pin in range(4): #we have 4 pins to loop through
-        GPIO.output(RControlPin[pin], seq[halfstep][pin])
-        GPIO.output(LControlPin[pin], seq[halfstep][pin])
-
-#IS EQUIVALENT TO -
-# try to understand the sense:
-
-for halfstep in range(8):
-    GPIO.output(RControlPin[0],seq[halfstep][0])
-    GPIO.output(RControlPin[1],seq[halfstep][1])
-    GPIO.output(RControlPin[2],seq[halfstep][2])
-    GPIO.output(RControlPin[3],seq[halfstep][3])
-
-    GPIO.output(LControlPin[0],seq[halfstep][0])
-    GPIO.output(LControlPin[1],seq[halfstep][1])
-    GPIO.output(LControlPin[2],seq[halfstep][2])
-    GPIO.output(LControlPin[3],seq[halfstep][3])
-
-'''
-
-
-
 
 def BackwardStep(distance):
     for i in range(512): # 1 rotation

@@ -2,12 +2,18 @@ import RPi.GPIO as GPIO
 import time
  
 GPIO.setmode(GPIO.BCM)
- 
+'''
 enable_pin = 18
 coil_A_1_pin = 4
 coil_A_2_pin = 17
 coil_B_1_pin = 23
 coil_B_2_pin = 24
+'''
+enable_pin = 7
+coil_A_1_pin = 6
+coil_A_2_pin = 13
+coil_B_1_pin = 19
+coil_B_2_pin = 26
  
 GPIO.setup(enable_pin, GPIO.OUT)
 GPIO.setup(coil_A_1_pin, GPIO.OUT)
