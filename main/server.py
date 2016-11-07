@@ -12,6 +12,5 @@ print 'connection accepted from' , listener.last_accepted
 try:
     while True:
         print conn.recv()
-
 except KeyboardInterrupt:
     pass
