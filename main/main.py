@@ -5,7 +5,7 @@ import time
 from functions import rc_time, ForwardStep, BackwardStep, Right90, Left90
 
 address = ('localhost', 6000)
-conn = Client(address, authkey='ldr')
+conn = Client(address, authkey = 'ldr')
 
 GPIO.setmode(GPIO.BOARD)
 

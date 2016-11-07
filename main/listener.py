@@ -11,6 +11,15 @@ print 'connection accepted from' , listener.last_accepted
 
 try:
     while True:
-        print conn.recv()
+		msg = conn.recv()
+        if msg[0] == 'ldr':
+			print 'ldr reading: ' , msg[1]
+			#post request to the server
+		elif msg[0] == 'ds':
+			print 'ds reading: ', msg[1]
+			#post request to the server
+		elif msg=='patch found':
+			print msg
+			#post request to the server
 except KeyboardInterrupt:
     pass
