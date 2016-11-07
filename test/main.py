@@ -1,73 +1,75 @@
-import RPi.GPIO as GPIO
-from multiprocessing.connection import Client
+# import RPi.GPIO as GPIO
 import time
-from functions import rc_time, ForwardStep, BackwardStep, Right90, Left90
+# from functions import rc_time, ForwardStep, BackwardStep, Right90, Left90
+import time
+from socket import socket
+import thread
+import json
 
-address = ('localhost', 6000)
-listener_conn = Client(address, authkey = 'ldr')
-ldr_threshold = 100000 # to be caliberated
-ds_threshold = 10 # to be caliberated
-GPIO.setmode(GPIO.BOARD)
+main_address = ('localhost', 9000 )
+main_socket = socket()
+main_socket.bind(main_address)
+main_socket.listen(3) #3 clients can queue
 
-def ldr_process(conn):
-    while True:
-        msg = False
-        ldr_reading = rc_time()
-        listener_conn.send(['ldr', ldr_reading]) # send reading to listner.py
-        if ldr_reading > ldr_threshold # globally defined
-            msg = True
-        conn.send(msg) # to be received in main function
+ldr_status = 0
+ds_status = 0
 
-def ds_process(conn):
-    while True:
-        msg = False
-        ds_reading = Distance()
-        listener_conn.send(['ds', ds_reading])
-        if ds_reading < ds_threshold:
-            msg = True
-        conn.send(msg)
+def clientThread(conn):
+	while True:
+		global ldr_status, ds_status
+		raw_data = conn.recv(1024) #1kb of data to be received
+		if raw_data != '':
+			data= json.loads(raw_data)
 
+			if data['sensor'] == 'ldr':
+			    ldr_status = data['status']
+
+			elif data['sensor'] == 'ds':
+			    ds_status = data['status']
+
+			print ldr_status, ds_status
+			# break
+
+
+# GPIO.setmode(GPIO.BOARD)
 def main():
 
-	try:
-		if ldr_parent_conn.recv():
-			print 'Patch found'
-			return None #breaks out of the function
+	if ldr_status:
+		print 'Patch found'
+		return True #breaks out of the function
 
-		elif ds_parent_conn.recv():
-			#got a wall bro!
-			Right90()
-			ForwardStep() #one full rotation only
-			Right90()
-			#Turned around
-
-			main() #repeat
-
-		else:
-			ForwardStep()
-			main() #RECURSION IT IS!!!!#FFFFFF
+	elif ds_status:
+		#got a wall bro!
+		# Right90()
+		# ForwardStep() #one full rotation only
+		# Right90()
+		print 'Turned around'
+		return False
+	else:
+		print 'ForwardStep()'
+		return False
 
 
-	except KeyboardInterrupt:
-		pass
+	# finally:
+	# 	print 'cleaning up'
+	# 	# GPIO.cleanup()
 
-	finally:
-		print 'cleaning up'
-		GPIO.cleanup()
+#accepting incoming connections
+ldr_conn, addr = main_socket.accept()#will wait for a new conn to proceed below
+print 'LDR CONNECTED'
+print 'connected :', ldr_conn, addr
+thread.start_new_thread(clientThread,(ldr_conn,)) #will run parallel with main()
 
-if __name__ == '__main__':
+ds_conn, addr = main_socket.accept()#will wait for a new conn to proceed below
+print 'DS CONNECTED'
+print 'connected :', ldr_conn, addr
+thread.start_new_thread(clientThread,(ds_conn,)) #will run parallel with main()
 
-    ldr_parent_conn, ldr_child_conn = Pipe()
-    L = Process(target = ldr_process(ldr_child_conn))
-    L.start()
+while True:
+	if main():
+		print 'PATCH FOUND!!!'
+		break
+	time.sleep(1)
 
-    ds_parent_conn, ds_child_conn = Pipe()
-    D = Process(target = ds_process(ds_child_conn))
-    D.start()
-
-    M = Process(target=main())
-    M.start()
-
-    L.join()
-    M.join()
-    D.join()
+conn.close()
+main_socket.close()
