@@ -4,16 +4,16 @@ import time
 
 def forLoop():
 	print time.time()
-	for i in range(1000):
+	time.sleep(5)
+	for i in range(10):
 		print i
 	print time.time()
-	
+
 def forloop2():
 	print time.time()
-	for i in range(146):
-		print 'halwa'
+	print 'halwa'
 	print time.time()
-	
+
 if __name__ == '__main__':
 	Thread(target=forLoop()).start()
 	Thread(target=forloop2()).start()
