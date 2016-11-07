@@ -2,6 +2,7 @@
 
 ## connect to listener
   initialize stepper_rotation_count
+
 def main() function:
   ## read ldr_reading()
     conn.send(ldr_reading)

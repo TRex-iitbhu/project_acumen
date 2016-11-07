@@ -94,10 +94,7 @@ def ForwardStep():
                 GPIO.output(RControlPin[pin], seq[halfstep][pin])
                 GPIO.output(LControlPin[pin], seq[halfstep][pin])
             time.sleep(0.001)
-            '''
-            LDR logic
-            '''
-
+            
     GPIO.output(FLed, 0)
 
 def BackwardStep(distance):
