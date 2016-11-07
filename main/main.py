@@ -9,7 +9,6 @@ conn = Client(address, authkey='ldr')
 
 GPIO.setmode(GPIO.BOARD)
 
-ldrPin = 40
 def main():
 	
 	try:
@@ -28,9 +27,10 @@ def main():
 			
 			if ds_reading < ds_threshold:
 				#got a wall bro!
-				Left90()
-				ForwardStep()
-				Left90()
+				Right90()
+				ForwardStep() #one full rotation only
+				Right90()
+				#Turned around
 				
 				main() #repeat
 				

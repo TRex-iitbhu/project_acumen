@@ -4,22 +4,24 @@ import time
 '''
 LDR
 '''
-def rc_time(pin):
+ldrPin = 40
+
+def rc_time(ldrPin):
     count=0
 
-    GPIO.setup(pin,GPIO.OUT)
-    GPIO.output(pin,0)
+    GPIO.setup(ldrPin,GPIO.OUT)
+    GPIO.output(ldrPin,0)
     time.sleep(0.001)
 
     #back to input
-    GPIO.setup(pin, GPIO.IN)
+    GPIO.setup(ldrPin, GPIO.IN)
 
     #count until the pin goes high
-    while (GPIO.input(pin) == GPIO.LOW):
+    while (GPIO.input(ldrPin) == GPIO.LOW):
         count += 1
 
     return count
-
+    
 '''
 Distance Sensor
 '''
@@ -57,6 +59,8 @@ seq = [ [1,0,0,0],
 
 circumference = 2 * 3.1417 * r
 
+#n is number of rotations of stepper needed for 90 degree rotation of bot
+
 def Right90():
     '''
     WL --> forward by n rotations
@@ -77,7 +81,13 @@ def Right90():
     '''
 
 def Left90():
-    pass
+
+    for i in range(n * 512): # 1 rotation
+        for halfstep in range(8): #we have 8 halfsteps
+            for pin in range(4): #we have 4 pins to loop through
+                GPIO.output(RControlPin[pin], seq[-halfstep][pin])
+                GPIO.output(LControlPin[pin], seq[halfstep][pin])#to be tested.
+            time.sleep(0.001)
 
 '''
 ForwardStep = 1 rotation forward
@@ -105,9 +115,3 @@ def BackwardStep(distance):
                 GPIO.output(LControlPin[pin], seq[-halfstep][pin])
             time.sleep(0.001)
 
-'''
-Suppose there's an object in front of bot, what could it either be
-wall or other bot
-bot1: dimension L*L cms
-if wall: for bot1(see arena pic ) turn to its left by 90 --> then move forward by L/2.
-'''
