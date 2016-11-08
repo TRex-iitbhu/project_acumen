@@ -9,23 +9,25 @@ listener_socket = socket()
 listener_socket.connect(listener_address)
 print 'listener connected', listener_socket
 
+main_address = ('localhost', 9000 )
+main_socket = socket()
+main_socket.connect(main_address)
+print 'main connected', main_socket
+
 def ldr_process():
     ldr_threshold = 10 # to be caliberated
     while True:
-        
-        main_address = ('localhost', 9000 )
-        main_socket = socket()
-        main_socket.connect(main_address)
-        print 'main connected', main_socket
-
         status = 0
         ldr_reading = int(raw_input('ldr reading :'))
         if ldr_reading > ldr_threshold: # globally defined
             status = 1
         listener_data = json.dumps({'sensor':'ldr','reading': ldr_reading, 'status' : status})
         listener_socket.send(listener_data) #for reading
-        main_socket.send(listener_data) #for msg
-
+        try:
+            main_socket.send(listener_data) #for msg
+        except Exception as e:
+            print e
+            pass
 
 if __name__ == "__main__":
     try:

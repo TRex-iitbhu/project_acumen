@@ -13,10 +13,10 @@ main_address = ('localhost', 9000 )
 main_socket = socket()
 main_socket.connect(main_address)
 print main_socket, 'connected'
+
 def ds_process():
     ds_threshold = 10 # to be caliberated
     while True:
-
         status = 0
         ds_reading = int(raw_input('ds reading: '))
         if ds_reading < ds_threshold:

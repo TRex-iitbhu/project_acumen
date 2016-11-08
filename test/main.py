@@ -68,7 +68,11 @@ thread.start_new_thread(clientThread,(ds_conn,)) #will run parallel with main()
 while True:
 	if main():
 		print 'PATCH FOUND!!!'
+		print 'breaking main function'
+		time.sleep(5)
+
 		break
+
 	time.sleep(1)
 
 conn.close()
