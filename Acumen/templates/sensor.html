@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- <meta http-equiv="refresh" content="2"> -->
+  <title>Acumen</title>
+  <link rel="stylesheet" href="/static/css/materialize.min.css">
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet">
+</head>
+<body>
+  <div class="container">
+    <div>
+
+  <h3>
+    <a href="/" class="btn-floating btn-large waves-effect waves-light blue"><i class="material-icons">home</i></a>
+    Project Acumen
+  </h3>
+
+  <table>
+        <thead>
+          <tr>
+              <th data-field="id">Swarm Bot Name</th>
+              <th data-field="name">Swarm Bot Id</th>
+              <th data-field="price">LDR reading</th>
+              <th data-field="price">DS reading</th>
+              <th data-field="price">Patch status</th>
+
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {% for swarmBot in swarmBots %}
+          <tr>
+            <td>{{swarmBot.swarmBotName}}</td>
+            <td>{{swarmBot.swarmBotId}}</td>
+            <td>{{swarmBot.ldr.reading}}</td>
+            <td> {{swarmBot.ds.ds_reading}}</td>
+            <td>{{swarmBot.patchStatus}}</td>
+          </tr>
+
+        {% endfor %}
+      </tbody>
+
+      </table>
+      <br><br>
+    </div>
+  </div>
+    <div class="row">
+
+    <div class="col s4">
+
+    </div>
+
+      <script type="text/javascript" src="/static/js/jquery-2.1.1.min.js"></script>
+      <script src="/static/js/materialize.min.js" charset="utf-8"></script>
+</body>
+</html>
