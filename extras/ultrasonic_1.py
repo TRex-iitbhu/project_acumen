@@ -1,8 +1,4 @@
-#!/usr/bin/python
-#+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+
-#|R|a|s|p|b|e|r|r|y|P|i|-|S|p|y|.|c|o|.|u|k|
 
-# Import required Python libraries
 from __future__ import print_function
 import time
 import RPi.GPIO as GPIO
