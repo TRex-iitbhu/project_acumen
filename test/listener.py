@@ -13,26 +13,32 @@ sock.bind(listener_address)
 sock.listen(3) #3 clients can queue
 
 def clientThread(conn):
-    ldr_reading, ds_reading = 0, 0
-    while True:
-        raw_data = conn.recv(1024) #1kb of data to be received
-        if raw_data != '':
-            data = json.loads(raw_data)
-            if data['sensor'] == 'ldr':
-                ldr_reading = data['reading']
+		ldr_reading, ds_reading = 0, 0
+		while True:
+			try:
+				raw_data = conn.recv(1024) #1kb of data to be received
+				if raw_data != '':
+					data = json.loads(raw_data)
+					if data['sensor'] == 'ldr':
+						ldr_reading = data['reading']
 
-            elif data['sensor'] == 'ds':
-                ds_reading = data['reading']
+					elif data['sensor'] == 'ds':
+						ds_reading = data['reading']
 
-            print 'ldr_reading: ', ldr_reading,' , ds_reading: ', ds_reading
-
+					print 'ldr_reading: ', ldr_reading,' , ds_reading: ', ds_reading
+					
+			except KeyboardInterrupt:
+				conn.close()
+				sock.close()
+				print 'closing sockets'
 
 while True:
-    #accepting incoming connections
-    conn, addr = sock.accept()
-    print 'connected :', conn, addr
-    thread.start_new_thread(clientThread,(conn,))
-#start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
-
-conn.close()
-sock.close()
+	try:
+		#accepting incoming connections
+		conn, addr = sock.accept()
+		print 'connected :', conn, addr
+		thread.start_new_thread(clientThread,(conn,))
+	#start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
+	except KeyboardInterrupt:
+		conn.close()
+		sock.close()

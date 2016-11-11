@@ -1,12 +1,13 @@
-# import RPi.GPIO as GPIO
+import RPi.GPIO as GPIO
 import time
-# from functions import rc_time, ForwardStep, BackwardStep, Right90, Left90
+from functions import rc_time, ForwardStep, BackwardStep, Right90, Left90
 import time
 from socket import socket
 import thread
 import json
+GPIO.setmode(GPIO.BCM)
 
-main_address = ('localhost', 9000 )
+main_address = ('localhost', 9876 )
 main_socket = socket()
 main_socket.bind(main_address)
 main_socket.listen(3) #3 clients can queue
@@ -28,6 +29,7 @@ def clientThread(conn):
 			    ds_status = data['status']
 
 			print ldr_status, ds_status
+			time.sleep(.3)
 			# break
 
 
@@ -39,14 +41,15 @@ def main():
 		return True #breaks out of the function
 
 	elif ds_status:
-		#got a wall bro!
-		# Right90()
-		# ForwardStep() #one full rotation only
-		# Right90()
+		print 'got a wall bro!'
+		Right90()
+		ForwardStep() #one full rotation only
+		Right90()
 		print 'Turned around'
 		return False
 	else:
-		print 'ForwardStep()'
+		print 'Taking ForwardStep()'
+		ForwardStep()
 		return False
 
 
@@ -66,14 +69,17 @@ print 'connected :', ldr_conn, addr
 thread.start_new_thread(clientThread,(ds_conn,)) #will run parallel with main()
 
 while True:
-	if main():
-		print 'PATCH FOUND!!!'
-		print 'breaking main function'
-		time.sleep(5)
+	try:
+		if main():
+			print 'PATCH FOUND!!!'
+			print 'breaking main function'
+			time.sleep(5)
 
-		break
+			break
 
-	time.sleep(1)
+		time.sleep(1)
 
-conn.close()
-main_socket.close()
+	except KeyboardInterrupt:
+		conn.close()
+		main_socket.close()
+		GPIO.cleanup()

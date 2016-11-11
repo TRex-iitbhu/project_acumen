@@ -9,7 +9,7 @@ listener_socket = socket()
 listener_socket.connect(listener_address)
 print 'listener connected', listener_socket
 
-main_address = ('localhost', 9000 )
+main_address = ('localhost', 9876 )
 main_socket = socket()
 main_socket.connect(main_address)
 print 'main connected', main_socket
