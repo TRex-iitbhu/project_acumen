@@ -1,9 +1,8 @@
 import subprocess
 
-subprocess.Popen('listener.py', shell=True)
+subprocess.Popen('python listener.py', shell=True)
 print '1'
-subprocess.Popen('main.py', shell=True)
+subprocess.Popen('python main.py', shell=True)
 print '2'
-
-subprocess.Popen('ds.py', shell=True)
+subprocess.Popen('python ds.py', shell=True)
 print'3'

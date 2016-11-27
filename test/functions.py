@@ -121,7 +121,7 @@ BackwardStep = 1 rotation backward
 
 def ForwardStep():
 
-    GPIO.output(FLed, 1)
+    #GPIO.output(FLed, 1)
 
     for i in range(512): # 1 rotation
         for halfstep in range(8): #we have 8 halfsteps
@@ -130,7 +130,7 @@ def ForwardStep():
                 GPIO.output(LControlPin[pin], seq[halfstep][pin])
             time.sleep(0.001)
 
-    GPIO.output(FLed, 0)
+    #GPIO.output(FLed, 0)
 
 def BackwardStep(distance):
     for i in range(512): # 1 rotation

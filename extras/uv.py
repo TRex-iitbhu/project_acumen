@@ -2,8 +2,8 @@ import RPi.GPIO as GPIO                    #Import GPIO library
 import time                                #Import time library
 GPIO.setmode(GPIO.BCM)                     #Set GPIO pin numbering 
 
-TRIG = 21                                   #Associate GPIO pin 7 to TRIG
-ECHO = 20                                   #Associate GPIO pin 8 to ECHO
+TRIG = 23                                  #Associate GPIO pin 16 to TRIG
+ECHO = 24                                   #Associate GPIO pin 18 to ECHO
 
 
 print "Distance measurement in progress"
@@ -20,23 +20,25 @@ while True:
 
   print 'settled'
   GPIO.output(TRIG, True)                  #Set TRIG as HIGH
-  time.sleep(1)                      #Delay of 0.00001 seconds
-  GPIO.output(TRIG, False)                 #Set TRIG as LOW
+  time.sleep(1)                            #Delay of 0.00001 seconds
+                                           #Set TRIG as LOW
+  GPIO.output(TRIG, False)
+                  
   print 'TRIG sent'
   print 'checking echo'
-  '''
+  
 
   while GPIO.input(ECHO)==0:               #Check whether the ECHO is LOW
     pulse_start = time.time()              #Saves the last known time of LOW pulse
 
   print 'echo not zero'
-  '''
+  
   i = 0
   while i<400:
       print GPIO.input(ECHO)
       i += 1
       
-  '''    
+      
   while GPIO.input(ECHO)==1:               #Check whether the ECHO is HIGH
     pulse_end = time.time()                #Saves the last known time of HIGH pulse 
 
@@ -51,5 +53,5 @@ while True:
     print "Distance:",distance - 0.5,"cm"  #Print distance with 0.5 cm calibration
   else:
     print "Out Of Range"                   #display out of range
-  '''
+  
   
