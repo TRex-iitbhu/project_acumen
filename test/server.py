@@ -14,24 +14,37 @@ sock.listen(3) #3 clients can queue #Listening at the address
 server_address = "http://192.168.0.5:80/"
 url = server_address + "sensor_readings/"
 
+def cleanData(raw_data):
+	try:
+		data = json.loads(raw_data)
+		print 'raw_data: ',data, 'normal'
+	except Exception as e:
+		print 'json loading exception', e
+		print raw_data
+		raw_data = raw_data.split('}{')
+		raw_data = '{"' + raw_data[-1][1:]
+		print raw_data, "truncated"
+		data = json.loads(raw_data)
+	return data
 
+def postData(data):
+	try:
+		post(url, data=data)
+		print 'posted', data
+	except Exception as e:
+		print e
+		print "unable to post the data"	
+	
 def clientThread(conn):
 	print "Thread started"
 	while True:
 		try:
-			raw_data = conn.recv(4096) #4kb of data to be received
+			raw_data = conn.recv(1024) #1kb of data to be received
 			if raw_data != '':
-				print 'raw_data: ',raw_data
-				data = json.loads(raw_data)
-				print 'data'
-				try:
-					post(url, data=data)
-					print 'posted', data
-				except Exception as e:
-					print e
-					
-			else:
-				print "no data to listener socket"
+				data = cleanData(raw_data)
+				postData(data)
+				
+			else: print "no data to listener socket"
 				
 		except KeyboardInterrupt:
 			conn.close()

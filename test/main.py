@@ -2,13 +2,15 @@ import RPi.GPIO as GPIO
 import time
 from functions import rc_time, ForwardStep, BackwardStep, Right90, Left90
 import time
-from socket import socket
+from socket import *
 import thread
 import json
 GPIO.setmode(GPIO.BCM)
 
 main_address = ('localhost', 7000 )
 main_socket = socket()
+main_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+
 main_socket.bind(main_address)
 main_socket.listen(3) #3 clients can queue
 
