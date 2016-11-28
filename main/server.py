@@ -6,10 +6,10 @@ import thread
 from requests import post
 
 listener_address = ('localhost', 6000 )
-sock = socket()#Creating socket object
-sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-sock.bind(listener_address) #binding socket to a address.
-sock.listen(3) #3 clients can queue #Listening at the address
+listener_socket = socket()#Creating socket object
+listener_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+listener_socket.bind(listener_address) #binding socket to a address.
+listener_socket.listen(4) #3 clients can queue #Listening at the address
 
 server_address = "http://192.168.0.5:80/"
 url = server_address + "sensor_readings/"
@@ -19,7 +19,7 @@ def cleanData(raw_data):
 		data = json.loads(raw_data)
 		print 'raw_data: ',data, 'normal'
 	except Exception as e:
-		print 'json loading exception', e
+		print 'Exception 1: json loading exception', e
 		print raw_data
 		raw_data = raw_data.split('}{')
 		raw_data = '{"' + raw_data[-1][1:]
@@ -32,7 +32,7 @@ def postData(data):
 		post(url, data=data)
 		print 'posted', data
 	except Exception as e:
-		print e
+		print 'Exception 2', e
 		print "unable to post the data"	
 	
 def clientThread(conn):
@@ -47,20 +47,27 @@ def clientThread(conn):
 			else: print "no data to listener socket"
 				
 		except KeyboardInterrupt:
+			print 'Exception 3'
 			conn.close()
-			sock.close()
+			listener_socket.close()
 			print 'closing sockets'
 
 count = 0
+
+try:
+	ds_conn, addr = listener_socket.accept()#will wait for a new conn to proceed below
+	print 'server.py connected to', ds_conn
+	thread.start_new_thread(clientThread,(ds_conn,)) 
+except Exception as e:
+	print 'Exception 4', e
+try:
+#accepting incoming connections
+	ir_conn, addr = listener_socket.accept()#will wait for a new conn to proceed below
+	print 'server.py connected to ', ir_conn
+	thread.start_new_thread(clientThread,(ir_conn,)) #will run parallel with main()
+except Exception as e:
+	print 'Exception 5', e
+	
 while True:
-	try:#accepting incoming connections
-		conn, addr = sock.accept()
-		print 'server.py connected with :', conn
-		print 'thread starting for this socket'
-		thread.start_new_thread(clientThread,(conn,))#start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
-		
-	except KeyboardInterrupt:
-		print "closing sockets"
-		conn.close()
-		sock.close()
-		print "closed"
+	pass
+#to run the program with the threads

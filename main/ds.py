@@ -34,21 +34,27 @@ def ds_process():
 			if ds_reading < ds_threshold:
 				status = 1
 			listener_data = json.dumps({'sensor':'ds','reading': ds_reading, 'status' : status}) # data as str
-			listener_socket.send(listener_data) #for reading
-			main_socket.send(listener_data) #for msg
-			print listener_data
-			time.sleep(.500)
+			try:
+				listener_socket.send(listener_data) #for reading
+				main_socket.send(listener_data) #for msg
+				print listener_data
+			except Exception as e:
+				print 'Exception 1', e
+				
+			time.sleep(1)
+			
 		except Exception as e:
-			print e
+			print 'Exception 2', e
 			print "closing the sockets"
 			listener_socket.close()
 			main_socket.close()
 			print "closed the sockets"
 			
-if __name__ == "__main__":
-    try:
-        ds_process()
-    except KeyboardInterrupt:
-        listener_socket.close()
-        main_socket.close()
-        print 'sockets closed'
+
+try:
+	ds_process()
+except KeyboardInterrupt:
+	print 'Exception 3'
+	listener_socket.close()
+	main_socket.close()
+	print 'sockets closed'

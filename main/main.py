@@ -1,48 +1,89 @@
 import RPi.GPIO as GPIO
-from multiprocessing.connection import Client
 import time
-
 from functions import rc_time, ForwardStep, BackwardStep, Right90, Left90
+import time
+from socket import *
+import thread
+import json
+GPIO.setmode(GPIO.BCM)
 
-address = ('localhost', 6000)
-conn = Client(address, authkey = 'ldr')
+main_address = ('localhost', 7000 )
+main_socket = socket()
+main_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+main_socket.bind(main_address)
+main_socket.listen(3) #3 clients can queue
 
-GPIO.setmode(GPIO.BOARD)
+ir_status = 0
+ds_status = 0
+
+def clientThread(conn):
+	while True:
+		global ir_status, ds_status
+		raw_data = conn.recv(1024) #1kb of data to be received
+		if raw_data != '':
+			data= json.loads(raw_data)
+
+			if data['sensor'] == 'ir':
+			    ir_status = data['status']
+
+			elif data['sensor'] == 'ds':
+			    ds_status = data['status']
+
+			print ir_status, ds_status
+			time.sleep(.500)
+			# break
+		else:
+			print "no raw data from sensors"
+
 
 def main():
-	
 	try:
-		
-		ldr_reading = rc_time(ldrPin)
-		conn.send(['ldr', ldr_reading])
-		
-		if ldr_reading > ldr_threshold:
+		if ir_status:
 			print 'Patch found'
-			conn.send(['patch_found'])
-			break
-			
+			return 'break' #breaks out of the function
+
+		elif ds_status:
+			print 'got a wall bro!'
+			Right90()
+			ForwardStep() #one full rotation only
+			Right90()
+			print 'Turned around'
+			return False
 		else:
-			ds_reading = Distance() #to be done
-			conn.send(['ds', ds_reading])
+			print 'Taking ForwardStep()'
+			ForwardStep()
+			return False
 			
-			if ds_reading < ds_threshold:
-				#got a wall bro!
-				Right90()
-				ForwardStep() #one full rotation only
-				Right90()
-				#Turned around
-				
-				main() #repeat
-				
-			else:
-				ForwardStep()
-				main() #RECURSION IT IS!!!!#FFFFFF
-					 
+	except KeyboardInterrupt:
+		print "closing sockets"
+		main_socket.close()
+		ir_conn.close()
+		ds_conn.close()
+		print "closed"
+		return 'break'
+
+try:
+#accepting incoming connections
+	ir_conn, addr = main_socket.accept()#will wait for a new conn to proceed below
+	print 'main.py connected :', ir_conn
+	thread.start_new_thread(clientThread,(ir_conn,)) #will run parallel with main()
+except Exception as e:
+	print 'Exception 1', e
+try:
+	ds_conn, addr = main_socket.accept()#will wait for a new conn to proceed below
+	print 'main.py connected :', ds_conn
+	thread.start_new_thread(clientThread,(ds_conn,)) #will run parallel with main()
+except Exception as e:
+	print 'Exception 2', e
+	
+while True:
+	try:
+		if main()=='break':break
+		time.sleep(1)
 
 	except KeyboardInterrupt:
-		pass
-		
-	finally:
-		
-		print 'cleaning up'
+		print 'Exception 3'
+		main_socket.close()
+		ir_conn.close()
+		ds_conn.close()
 		GPIO.cleanup()
