@@ -102,5 +102,23 @@
     </div>
       <script type="text/javascript" src="/static/js/jquery-2.1.1.min.js"></script>
       <script src="/static/js/materialize.min.js" charset="utf-8"></script>
+      <script>
+$.ajax({
+  url: '/mapUpdate/',
+  type: 'POST',
+  dataType: 'json',
+  data: {'botId': '0'}
+})
+.done(function() {
+  console.log("success");
+})
+.fail(function() {
+  console.log("error");
+})
+.always(function() {
+  console.log("complete");
+});
+
+      </script>
 </body>
 </html>

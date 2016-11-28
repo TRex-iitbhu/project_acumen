@@ -38,7 +38,7 @@
             <td>{{swarmBot.swarmBotName}}</td>
             <td>{{swarmBot.swarmBotId}}</td>
             <td>{{swarmBot.ldr.reading}}</td>
-            <td> {{swarmBot.ds.ds_reading}}</td>
+            <td id="ds_{{forloop.counter}}"> {{ swarmBot.ds.reading|floatformat:-2 }}</td>
             <td>{{swarmBot.patchStatus}}</td>
           </tr>
 
@@ -57,5 +57,23 @@
 
       <script type="text/javascript" src="/static/js/jquery-2.1.1.min.js"></script>
       <script src="/static/js/materialize.min.js" charset="utf-8"></script>
+<script type="text/javascript">
+// $(function() {
+//   startRefresh();
+// });
+//
+// function startRefresh() {
+//   setTimeout(startRefresh,1000);
+//   $.get('/sensors/', function(data) {
+//       // $('#content_div_id').html(data);
+//     console.log(data);
+//   });
+// }
+setInterval(function(){
+   $('#ds_1').load('/ds_reading/1');
+   $('#ds_2').load('/ds_reading/2');
+}, 500)
+
+</script>
 </body>
 </html>

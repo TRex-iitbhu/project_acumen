@@ -15,7 +15,7 @@ http://www.allaboutcircuits.com/projects/building-raspberry-pi-controllers-part-
 
 class LDR(models.Model):
     swarmBot = models.OneToOneField(SwarmBot)
-    reading = models.IntegerField(null=True,blank=True)
+    reading = models.FloatField(null=True,blank=True)
 
     def __str__(self):
         return '%s - %s' %(self.swarmBot.swarmBotId, self.reading)
@@ -23,15 +23,15 @@ class LDR(models.Model):
 class IR(models.Model):
     swarmBot = models.ForeignKey(SwarmBot)
     irId = models.IntegerField()
-    irReading = models.IntegerField()
+    reading = models.FloatField()
 
     def __str__(self):
-        return '%s-%s' %(self.irId,self.irReading)
+        return '%s-%s' %(self.irId,self.reading)
 
 class DS(models.Model):
-    swarmBot = models.ForeignKey(SwarmBot)
+    swarmBot = models.OneToOneField(SwarmBot)
     dsId = models.IntegerField()
-    dsReading = models.IntegerField()
+    reading = models.FloatField()
 
     def __str__(self):
-        return '%s-%s' %(self.usId,self.usReading)
+        return '%s-%s' %(self.dsId,self.reading)
