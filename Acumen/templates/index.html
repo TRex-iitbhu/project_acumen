@@ -36,60 +36,39 @@
         <thead>
           <tr>
             <th>-</th>
-            <th>1</th>
-            <th >2</th>
+            <th>0</th>
+            <th >1</th>
+            <th>2</th>
             <th>3</th>
             <th>4</th>
-            <th>5</th>
-            <th class="">6</th>
           </tr>
         </thead>
         <tbody>
           <tr>
-            <th scope="row ">1 <br><br></th>
-            <td class=" z-depth-3 blue darken-1"></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <th scope="row ">0 <br><br></th>
+            <td id="(0,0)" class="z-depth-3 blue darken-1"></td>
+            <td id="(0,1)"></td>
+            <td id="(0,2)"></td>
+            <td id="(0,3)"></td>
+            <td id="(0,4)"></td>
           </tr>
 
           <tr>
-            <th scope="row ">2 <br><br></th>
-            <td class=""></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
+            <th scope="row ">1 <br><br></th>
+            <td id="(1,0)"></td>
+            <td id="(1,1)"></td>
+            <td id="(1,2)"></td>
+            <td id="(1,3)"></td>
+            <td id="(1,4)"></td>
           </tr>
+
           <tr>
-            <th scope="row">3 <br><br></th>
-            <td class=""></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <th scope="row">4 <br><br></th>
-            <td class=""></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-          <tr>
-            <th scope="row">5 <br><br></th>
-            <td class=""></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td class=" z-depth-3  purple lighten-1"></td>
+            <th scope="row">2 <br><br></th>
+            <td id="(2,0)"></td>
+            <td id="(2,1)"></td>
+            <td id="(2,2)"></td>
+            <td id="(2,3)"></td>
+            <td id="(2,4)" class="z-depth-3  purple lighten-1"></td>
           </tr>
 
         </tbody>
@@ -103,21 +82,48 @@
       <script type="text/javascript" src="/static/js/jquery-2.1.1.min.js"></script>
       <script src="/static/js/materialize.min.js" charset="utf-8"></script>
       <script>
-$.ajax({
-  url: '/mapUpdate/',
-  type: 'POST',
-  dataType: 'json',
-  data: {'botId': '0'}
-})
-.done(function() {
-  console.log("success");
-})
-.fail(function() {
-  console.log("error");
-})
-.always(function() {
-  console.log("complete");
+//
+
+$(function() {
+  startRefresh();
 });
+
+function startRefresh() {
+  setTimeout(startRefresh,500);
+  $.get('/matUpdateWeb/1', function(data) {
+    var coordinate = '('+data[1]+','+data[4]+')';
+    console.log(coordinate);
+    var c = "z-depth-3 blue darken-1";
+    var elem = document.getElementById(coordinate);
+    var oldelem = document.getElementsByClassName(c)[0];
+    if(elem != oldelem){
+      $(oldelem).removeClass(c);
+      $(elem).addClass(c);
+      console.log("bot 1 Updated");
+    }
+    else{
+      console.log("bot 1 no change");
+    }
+
+  });
+  $.get('/matUpdateWeb/2', function(data) {
+    var coordinate = '('+data[1]+','+data[4]+')';
+    console.log(coordinate);
+    var c = "z-depth-3  purple lighten-1";
+    var elem = document.getElementById(coordinate);
+    var oldelem = document.getElementsByClassName(c)[0];
+    if(elem != oldelem){
+      $(oldelem).removeClass(c);
+      $(elem).addClass(c);
+      console.log("bot 2 Updated");
+    }
+    else{
+      console.log("bot 2 no change");
+    }
+
+  });
+}
+
 
       </script>
 </body>

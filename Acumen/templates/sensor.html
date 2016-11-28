@@ -37,9 +37,9 @@
           <tr>
             <td>{{swarmBot.swarmBotName}}</td>
             <td>{{swarmBot.swarmBotId}}</td>
-            <td>{{swarmBot.ldr.reading}}</td>
-            <td id="ds_{{forloop.counter}}"> {{ swarmBot.ds.reading|floatformat:-2 }}</td>
-            <td>{{swarmBot.patchStatus}}</td>
+            <td id="ldr_{{forloop.counter}}">{{swarmBot.ldr.reading}}</td>
+            <td id="ds_{{forloop.counter}}"> {{ swarmBot.ds.reading }}</td>
+            <td id="patchStatus_{{forloop.counter}}">{{swarmBot.patchStatus}}</td>
           </tr>
 
         {% endfor %}
@@ -72,6 +72,10 @@
 setInterval(function(){
    $('#ds_1').load('/ds_reading/1');
    $('#ds_2').load('/ds_reading/2');
+      $('#ldr_1').load('/ldr_reading/1');
+      $('#ldr_2').load('/ldr_reading/2');
+      $('#patchStatus_1').load('/patchStatus/1');
+      $('#patchStatus_2').load('/patchStatus/2');
 }, 500)
 
 </script>

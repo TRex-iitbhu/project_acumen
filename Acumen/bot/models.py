@@ -15,6 +15,7 @@ http://www.allaboutcircuits.com/projects/building-raspberry-pi-controllers-part-
 
 class LDR(models.Model):
     swarmBot = models.OneToOneField(SwarmBot)
+    ldrId = models.IntegerField()
     reading = models.FloatField(null=True,blank=True)
 
     def __str__(self):
