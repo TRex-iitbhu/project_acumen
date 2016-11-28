@@ -7,9 +7,9 @@ from socket import socket
 listener_address = ('localhost', 6000 )
 listener_socket = socket()
 listener_socket.connect(listener_address)
-print 'listener connected', listener_socket
+print 'Server connected', listener_socket
 
-main_address = ('localhost', 9876 )
+main_address = ('localhost', 7000 )
 main_socket = socket()
 main_socket.connect(main_address)
 print 'main connected', main_socket
@@ -32,7 +32,9 @@ def ldr_process():
 if __name__ == "__main__":
     try:
         ldr_process()
+        time.sleep(5)
     except KeyboardInterrupt:
+        print 'closing sockets'
         listener_socket.close()
         main_socket.close()
-        print 'closing sockets'
+        print 'closed'

@@ -3,7 +3,7 @@ import RPi.GPIO as GPIO
 import time
 
 GPIO.setmode(GPIO.BCM)
-
+GPIO.setwarnings(False)
 '''
 LDR
 '''
@@ -59,6 +59,8 @@ STEPPER
 #LControlPin = [6, 9, 14, 12] #left motor pins
 RControlPin = [6,13,19,26] #right motor pins
 LControlPin = [21,20,16,12] #left motor pins
+RControlPin.reverse()
+LControlPin.reverse()
 FLed = 2
 GPIO.setup(FLed, GPIO.OUT)
 GPIO.output(FLed, 0)

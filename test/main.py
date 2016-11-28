@@ -7,7 +7,7 @@ import thread
 import json
 GPIO.setmode(GPIO.BCM)
 
-main_address = ('localhost', 9876 )
+main_address = ('localhost', 7000 )
 main_socket = socket()
 main_socket.bind(main_address)
 main_socket.listen(3) #3 clients can queue
@@ -29,57 +29,63 @@ def clientThread(conn):
 			    ds_status = data['status']
 
 			print ldr_status, ds_status
-			time.sleep(.3)
+			time.sleep(.1)
 			# break
+		else:
+			print "no raw data from sensors"
 
 
-# GPIO.setmode(GPIO.BOARD)
 def main():
+	try:
 
-	if ldr_status:
-		print 'Patch found'
-		return True #breaks out of the function
+		if ldr_status:
+			print 'Patch found'
+			return True #breaks out of the function
 
-	elif ds_status:
-		print 'got a wall bro!'
-		Right90()
-		ForwardStep() #one full rotation only
-		Right90()
-		print 'Turned around'
-		return False
-	else:
-		print 'Taking ForwardStep()'
-		ForwardStep()
-		return False
-
+		elif ds_status:
+			print 'got a wall bro!'
+			Right90()
+			ForwardStep() #one full rotation only
+			Right90()
+			print 'Turned around'
+			return False
+		else:
+			print 'Taking ForwardStep()'
+			ForwardStep()
+			return False
+			
+	except KeyboardInterrupt:
+		print "closing sockets"
+		main_socket.close()
+		ldr_conn.close()
+		ds_conn.close()
+		print "closed"
+		return 'break'
 
 	# finally:
 	# 	print 'cleaning up'
 	# 	# GPIO.cleanup()
-
+try:
 #accepting incoming connections
-ldr_conn, addr = main_socket.accept()#will wait for a new conn to proceed below
-print 'LDR CONNECTED'
-print 'connected :', ldr_conn, addr
-thread.start_new_thread(clientThread,(ldr_conn,)) #will run parallel with main()
-
-ds_conn, addr = main_socket.accept()#will wait for a new conn to proceed below
-print 'DS CONNECTED'
-print 'connected :', ldr_conn, addr
-thread.start_new_thread(clientThread,(ds_conn,)) #will run parallel with main()
-
+	ldr_conn, addr = main_socket.accept()#will wait for a new conn to proceed below
+	print 'main.py connected :', ldr_conn
+	thread.start_new_thread(clientThread,(ldr_conn,)) #will run parallel with main()
+except Exception as e:
+	print e
+try:
+	ds_conn, addr = main_socket.accept()#will wait for a new conn to proceed below
+	print 'main.py connected :', ds_conn
+	thread.start_new_thread(clientThread,(ds_conn,)) #will run parallel with main()
+except Exception as e:
+	print e
+	
 while True:
 	try:
-		if main():
-			print 'PATCH FOUND!!!'
-			print 'breaking main function'
-			time.sleep(5)
-
+		if main()=='break':
 			break
 
-		time.sleep(1)
+		time.sleep(.1)
 
 	except KeyboardInterrupt:
-		conn.close()
 		main_socket.close()
 		GPIO.cleanup()

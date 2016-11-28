@@ -3,42 +3,51 @@ from socket import *
 # from threading import Thread
 import json
 import thread
+from requests import post
 
 listener_address = ('localhost', 6000 )
-#Creating socket object
-sock = socket()
-#binding socket to a address.
-sock.bind(listener_address)
-#Listening at the address
-sock.listen(3) #3 clients can queue
+sock = socket()#Creating socket object
+sock.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
+sock.bind(listener_address) #binding socket to a address.
+sock.listen(3) #3 clients can queue #Listening at the address
+
+server_address = "http://192.168.0.5:80/"
+url = server_address + "sensor_readings/"
+
 
 def clientThread(conn):
-		ldr_reading, ds_reading = 0, 0
-		while True:
-			try:
-				raw_data = conn.recv(1024) #1kb of data to be received
-				if raw_data != '':
-					data = json.loads(raw_data)
-					if data['sensor'] == 'ldr':
-						ldr_reading = data['reading']
-
-					elif data['sensor'] == 'ds':
-						ds_reading = data['reading']
-
-					print 'ldr_reading: ', ldr_reading,' , ds_reading: ', ds_reading
+	print "Thread started"
+	while True:
+		try:
+			raw_data = conn.recv(4096) #4kb of data to be received
+			if raw_data != '':
+				print 'raw_data: ',raw_data
+				data = json.loads(raw_data)
+				print 'data'
+				try:
+					post(url, data=data)
+					print 'posted', data
+				except Exception as e:
+					print e
 					
-			except KeyboardInterrupt:
-				conn.close()
-				sock.close()
-				print 'closing sockets'
+			else:
+				print "no data to listener socket"
+				
+		except KeyboardInterrupt:
+			conn.close()
+			sock.close()
+			print 'closing sockets'
 
+count = 0
 while True:
-	try:
-		#accepting incoming connections
+	try:#accepting incoming connections
 		conn, addr = sock.accept()
-		print 'connected :', conn, addr
-		thread.start_new_thread(clientThread,(conn,))
-	#start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
+		print 'server.py connected with :', conn
+		print 'thread starting for this socket'
+		thread.start_new_thread(clientThread,(conn,))#start new thread takes 1st argument as a function name to be run, second is the tuple of arguments to the function.
+		
 	except KeyboardInterrupt:
+		print "closing sockets"
 		conn.close()
 		sock.close()
+		print "closed"

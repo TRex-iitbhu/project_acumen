@@ -1,7 +1,7 @@
 from sys import executable
 from subprocess import call, Popen
 '''
-Popen([executable, 'listener.py'], shell=True)
+Popen([executable, 'server.py'], shell=True)
 #print "running listener"
 
 Popen([executable, 'main.py'], shell=True)
@@ -14,31 +14,47 @@ Popen([executable, 'ds.py'], shell=True)
 print "running ds"
 
 import os
-os.system("python listener.py")
+os.system("python server.py")
 print 'listener'
 os.system("python main.py")
 print 'main'
-'''
 
+'''
 '''
 ps -fA | grep python
 
 
-'''
 
 
-'''
-execfile('listener.py')
+
+execfile('server.py')
 execfile('main.py')
 execfile('ds.py')
 
 
-execfile('sensorTest.py')
 
-execfile('printtest.py')
 '''
 
-call(['lxterminal', '-e', 'python server.py'])
-call(['lxterminal', '-e', 'python main.py'])
-call(['lxterminal', '-e', 'python ldr.py'])
-call(['lxterminal', '-e', 'python ds.py'])
+try:
+	call(['lxterminal', '-e', 'python server.py'])
+	print 'server.py running'
+except Exception as e:
+	print e
+try:
+	call(['lxterminal', '-e', 'python main.py'])
+	print "main.py running"
+	
+except Exception as e:
+	print e
+
+try:
+	call(['lxterminal', '-e', 'python ldr.py'])
+	print "ldr.py running"
+except Exception as e:
+	print e
+try:
+	call(['lxterminal', '-e', 'python ds.py'])
+	print "ds.py running"
+except Exception as e:
+	print e
+
