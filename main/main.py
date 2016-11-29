@@ -25,9 +25,9 @@ server_address = "http://192.168.0.5:80/"
 url = server_address + "sensor_readings/"
 ir_status = 0
 ds_status = 0
-row = 0
-col = 0
-
+patch_status = 0
+block = 0
+lastBlock = 0
 def cleanData(raw_data):
 	try:
 		data = json.loads(raw_data)
@@ -37,24 +37,48 @@ def cleanData(raw_data):
 		#print raw_data
 		raw_data = raw_data.split('}{')
 		raw_data = '{"' + raw_data[-1][1:]
-		print raw_data, "truncated"
+		#print raw_data, "truncated"
 		data = json.loads(raw_data)
 	return data
 
 def postData(data):
+	if data['reading'] == 0:
+		return None #don't post it must be ir
 	try:
 		post(url, data=data)
-		print 'posted', data
+		#print 'posted', data
 	except Exception as e:
 		print 'Exception 2', e
 		#print "unable to post the data"	
 
-def matUpdate(row,col):
-	matUrl = server_address + "matrixUpdate/1/" +str(row)+"/"+str(col)+"/"
+def matUpdate(block):
+	global lastBlock
+	matUrl = server_address + "matrixUpdate/1/" +str(block)+"/"
+	if block == lastBlock:
+		return None #don't post
 	try:
 		get(matUrl)
+		lastBlock = block
+		print 'bot in', block,
 	except Exception as e:
 		print e
+		
+def patchstatus():
+	url = server_address + "patchStatus/2/"
+	global patch_status
+	try: 	
+		status = get(url)
+		if status.text == "True": patch_status = 1
+	except Exception as e:
+		print e
+
+def patchStatusUpdate():
+	url = server_address + "patchStatusUpdate/1/"
+	try:
+		get(url)# update the patch status of this robot 
+	except Exception as e:
+		print e
+	
 	
 def listener(sensor_conn):#post the data to the server
 	while True:
@@ -68,7 +92,8 @@ def listener(sensor_conn):#post the data to the server
 				print "no data to listener socket"
 				time.sleep(1)
 				
-			matUpdate(row,col)
+			matUpdate(block) #get request to update the block position
+			patchStatus() #get request to get the patch status of the other bot
 						
 		except KeyboardInterrupt:
 			print 'Exception 3'
@@ -86,20 +111,47 @@ def SensorThread(sensor_conn):#update the sensor statuses
 			status = data['status']
 			if data['sensor'] == 'ir': ir_status = status
 			elif data['sensor'] == 'ds':  ds_status = status
-			print ir_status, ds_status
+			#print ir_status, ds_status
 			time.sleep(.5)
 		else:
 			print "no raw data from sensors"
 			time.sleep(1)
 
 
+def localisationFuction():
+	url = server_address+"blockCheck/%s/"			
+	c1 = get(url %1)
+	c2 = get(url %2)
+	x1 = int(c1.text[1])
+	x2 = int(c2.text[4])
+	y1 = int(c1.text[1])
+	y2 = int(c1.text[4])
+	#got the coordinates of both the bots
+	#now check the orientation 
+	if y1%2 == 0: moving = "up"
+	else: moving = "down"
+	
+	if moving == "up":
+		pass
+	elif moving == "down":
+		pass
+		
+
 def main():
 	flag = True
 	forwardCount = 0
+	global block, patch_status
 	while True:
 		try:
+			if patch_status: 
+				print 'other bot has found the patch, calling localisationFucntion()'
+				localisationFuction()
+				print 'work done breaking the main function!'
+				break
+			
 			if ir_status:
 				print 'Patch found'
+				patchStatusUpdate()
 				print 'breaking the main function'
 				break
 
@@ -108,21 +160,26 @@ def main():
 				if flag:
 					Left90()
 					ForwardStep(3) #one full rotation only
+					block += 1 #forward += 3
 					Left90()
 					flag = False
 					print 'left turn'
 				else:
-					Right90()
+					Right90() 
 					ForwardStep(3)
+					block += 1 #forward += 3
 					Right90()
 					flag = True
 					print 'right turn '
+				
 			else:
 				print 'Taking ForwardStep()'
-				ForwardStep(1)
 				forwardCount +=1 
 				if forwardCount == 3:
-					row = row % 3 + 1
+					block += 1
+					forwardCount = 0
+				ForwardStep(1)
+					
 		except KeyboardInterrupt:
 			print "closing sockets"
 			main_socket.close()

@@ -24,7 +24,12 @@ def ds():
 				time.sleep(1)
 			except Exception as e:
 				print 'Exception 1', e
-				time.sleep(1)	
+				
+				listener_socket.close()
+				main_socket.close()
+				print 'closed sockets'
+				break
+					
 			
 		except Exception as e:
 			print 'Exception 2', e
@@ -32,6 +37,7 @@ def ds():
 			listener_socket.close()
 			main_socket.close()
 			print "closed the sockets"
+			break
 				
 
 
@@ -48,13 +54,17 @@ def ir():
 				time.sleep(1)
 			except Exception as e:
 				print 'Exception 4',e
-				time.sleep(1)
+				main_socket.close()
+				listener_socket.close()
+				print 'closed sockets' 
+				break
 			
 		except Exception as e:
 			print 'Exception 5',e
 			main_socket.close()
 			listener_socket.close()
 			print 'closed sockets'       
+			break
 
 
 
