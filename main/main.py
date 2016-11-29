@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
-from functions import rc_time, ForwardStep, BackwardStep, Right90, Left90
-from requests import post
+from functions import  ForwardStep, BackwardStep, Right90, Left90
+from requests import post,get
 import time
 from socket import *
 import thread
@@ -19,10 +19,14 @@ listener_address = ('localhost', 6000 )
 listener_socket = socket()#Creating socket object
 listener_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 listener_socket.bind(listener_address) #binding socket to a address.
-listener_socket.listen(4) #3 clients can queue #Listening at the address
+listener_socket.listen(3) #3 clients can queue #Listening at the address
 
 server_address = "http://192.168.0.5:80/"
 url = server_address + "sensor_readings/"
+ir_status = 0
+ds_status = 0
+row = 0
+col = 0
 
 def cleanData(raw_data):
 	try:
@@ -45,8 +49,14 @@ def postData(data):
 		print 'Exception 2', e
 		#print "unable to post the data"	
 
+def matUpdate(row,col):
+	matUrl = server_address + "matrixUpdate/1/" +str(row)+"/"+str(col)+"/"
+	try:
+		get(matUrl)
+	except Exception as e:
+		print e
 	
-def listener(sensor_conn):
+def listener(sensor_conn):#post the data to the server
 	while True:
 		try:
 			raw_data = sensor_conn.recv(4096) #4kb of data to be received
@@ -58,18 +68,16 @@ def listener(sensor_conn):
 				print "no data to listener socket"
 				time.sleep(1)
 				
-				
+			matUpdate(row,col)
+						
 		except KeyboardInterrupt:
 			print 'Exception 3'
 			sensor_conn.close()
 			listener_socket.close()
-			print 'closing sockets'
+			print 'closing sockets'                                                                                                              
 		
-		
-ir_status = 0
-ds_status = 0
-	
-def SensorThread(sensor_conn):
+
+def SensorThread(sensor_conn):#update the sensor statuses
 	while True:
 		global ir_status, ds_status
 		raw_data = sensor_conn.recv(1024) #1kb of data to be received
@@ -86,33 +94,45 @@ def SensorThread(sensor_conn):
 
 
 def main():
-	try:
-		if ir_status:
-			print 'Patch found'
-			return True 
+	flag = True
+	forwardCount = 0
+	while True:
+		try:
+			if ir_status:
+				print 'Patch found'
+				print 'breaking the main function'
+				break
 
-		elif ds_status:
-			print 'got a wall bro!'
-			Right90()
-			ForwardStep() #one full rotation only
-			Right90()
-			print 'Turned around'
-			return False
-		else:
-			print 'Taking ForwardStep()'
-			ForwardStep()
-			return False
-			
-	except KeyboardInterrupt:
-		print "closing sockets"
-		main_socket.close()
-		sensor_conn.close()
-		print "closed"
-		return 'break'
+			elif ds_status:
+				print 'got a wall bro!'
+				if flag:
+					Left90()
+					ForwardStep(3) #one full rotation only
+					Left90()
+					flag = False
+					print 'left turn'
+				else:
+					Right90()
+					ForwardStep(3)
+					Right90()
+					flag = True
+					print 'right turn '
+			else:
+				print 'Taking ForwardStep()'
+				ForwardStep(1)
+				forwardCount +=1 
+				if forwardCount == 3:
+					row = row % 3 + 1
+		except KeyboardInterrupt:
+			print "closing sockets"
+			main_socket.close()
+			sensor_conn.close()
+			print "closed"
+			break
 
 try:
 	sensor_conn, addr = listener_socket.accept()
-	print 'server.py connected to', sensor_conn
+	print 'listener connected to sensor ', sensor_conn
 	thread.start_new_thread(listener,(sensor_conn,))
 except Exception as e:
 	print 'Exception 0', e
@@ -120,28 +140,28 @@ except Exception as e:
 try:
 #accepting incoming connections
 	sensor_conn, addr = main_socket.accept()#will wait for a new conn to proceed below
-	print 'main.py connected :', sensor_conn
+	print 'main connected to sensor :', sensor_conn
 	thread.start_new_thread(SensorThread,(sensor_conn,)) #will run parallel with main()
 except Exception as e:
 	print 'Exception 1', e
-
 	
-while True:
-	try:
-		if main()=='break':
-			
-			main_socket.close()
-			sensor_conn.close()
-	
-			GPIO.cleanup()
-			print "Breaking main function!"
-			time.sleep(.100)
-			break
-			
 
-	except KeyboardInterrupt:
-		print 'Exception 3'
+try:
+	main()
+	'''
+	if main()=='break':
+		
 		main_socket.close()
 		sensor_conn.close()
-		listener_socket.close()
+
 		GPIO.cleanup()
+		print "Breaking main function!"
+		time.sleep(.100)
+		break
+	'''
+except KeyboardInterrupt:
+	print 'Exception 3'
+	main_socket.close()
+	sensor_conn.close()
+	listener_socket.close()
+	GPIO.cleanup()

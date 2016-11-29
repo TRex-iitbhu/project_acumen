@@ -5,49 +5,52 @@ import time
 GPIO.setmode(GPIO.BCM)
 GPIO.setwarnings(False)
 '''
-LDR
+IR
 '''
-ldrPin = 40
+def irMeasure():
+	pins = [14,18,17]
+	GPIO.setup(15,GPIO.OUT)
+	GPIO.setup(27,GPIO.OUT)
+	GPIO.output(15,1)
+	GPIO.output(27,1)
 
-def rc_time(ldrPin):
-    count=0
+	for i in pins:
+		GPIO.setup(i, GPIO.IN)
+	reading = 0
+	for i in pins:
+		reading += GPIO.input(i)
+	return reading
 
-    GPIO.setup(ldrPin,GPIO.OUT)
-    GPIO.output(ldrPin,0)
-    time.sleep(0.001)
-
-    #back to input
-    GPIO.setup(ldrPin, GPIO.IN)
-
-    #count until the pin goes high
-    while (GPIO.input(ldrPin) == GPIO.LOW):
-        count += 1
-
-    return count
 
 '''
 Distance Sensor
 '''
 
-def distanceMeasure(TRIG, ECHO):
+def distanceMeasure():
+	
+	TRIG = 7
+	ECHO = 8
+	GPIO.setup(TRIG,GPIO.OUT)
+	GPIO.setup(ECHO,GPIO.IN)
+	GPIO.output(TRIG,False)
+	time.sleep(.000001)
+	GPIO.output(TRIG, True)
+	time.sleep(0.00001)
+	GPIO.output(TRIG, False)
 
-    GPIO.output(TRIG, True)
-    time.sleep(0.00001)
-    GPIO.output(TRIG, False)
-    
-    start = time.time()
-    while GPIO.input(ECHO)==0:
-        start = time.time()
+	start = time.time()
+	while GPIO.input(ECHO)==0:
+		start = time.time()
 
-    while GPIO.input(ECHO)==1:
-        stop = time.time()
+	while GPIO.input(ECHO)==1:
+		stop = time.time()
 
 	elapsed = stop - start
 	temperature = 20
 	speedSound = 33100 + (0.6 * temperature)
-    distance = (elapsed*speedSound)/2
-    distance = round(distance,2)
-    return distance
+	distance = (elapsed*speedSound)/2
+	distance = round(distance,2)
+	return distance
    
 
 '''
@@ -96,8 +99,8 @@ def Right90():
 
     '''
 # n to be calculated acc to circumference etc
-
-    for i in range(512): # 1 rotation
+    n = int(0.62*512)
+    for i in range(n): # 1 rotation
         for halfstep in range(8): #we have 8 halfsteps
             for pin in range(4): #we have 4 pins to loop through
                 GPIO.output(RControlPin[pin], seq[halfstep][pin])
@@ -108,8 +111,8 @@ def Right90():
     '''
 
 def Left90():
-
-    for i in range(n * 512): # 1 rotation
+    n = int(0.62*512)
+    for i in range(n): # 1 rotation
         for halfstep in range(8): #we have 8 halfsteps
             for pin in range(4): #we have 4 pins to loop through
                 GPIO.output(RControlPin[pin], seq[-halfstep][pin])
@@ -121,11 +124,11 @@ ForwardStep = 1 rotation forward
 BackwardStep = 1 rotation backward
 '''
 
-def ForwardStep():
+def ForwardStep(i):
 
     #GPIO.output(FLed, 1)
-
-    for i in range(512): # 1 rotation
+    n = int(i*1.2*512)/3 	
+    for i in range(n): # 1 rotation
         for halfstep in range(8): #we have 8 halfsteps
             for pin in range(4): #we have 4 pins to loop through
                 GPIO.output(RControlPin[pin], seq[halfstep][pin])
