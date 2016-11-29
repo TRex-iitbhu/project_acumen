@@ -1,4 +1,5 @@
 from sys import executable
+import time
 from subprocess import call, Popen
 '''
 Popen([executable, 'server.py'], shell=True)
@@ -19,10 +20,9 @@ print 'listener'
 os.system("python main.py")
 print 'main'
 
-'''
-'''
-ps -fA | grep python
 
+
+ps -fA | grep python
 
 
 
@@ -40,21 +40,29 @@ try:
 	print 'server.py running'
 except Exception as e:
 	print e
+time.sleep(1)
 try:
 	call(['lxterminal', '-e', 'python main.py'])
 	print "main.py running"
 	
 except Exception as e:
 	print e
+time.sleep(1)
 
 try:
-	call(['lxterminal', '-e', 'python ldr.py'])
-	print "ldr.py running"
+	call(['lxterminal', '-e', 'python ir.py'])
+	print "ir.py running"
 except Exception as e:
 	print e
+time.sleep(1)
 try:
 	call(['lxterminal', '-e', 'python ds.py'])
 	print "ds.py running"
 except Exception as e:
 	print e
-
+	
+while True:
+	try:
+		pass
+	except KeyboardInterrupt:
+		break

@@ -1,7 +1,6 @@
 import RPi.GPIO as GPIO
 import time
 from functions import rc_time, ForwardStep, BackwardStep, Right90, Left90
-from requests import post
 import time
 from socket import *
 import thread
@@ -15,64 +14,26 @@ main_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 main_socket.bind(main_address)
 main_socket.listen(3) #3 clients can queue
 
-listener_address = ('localhost', 6000 )
-listener_socket = socket()#Creating socket object
-listener_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
-listener_socket.bind(listener_address) #binding socket to a address.
-listener_socket.listen(4) #3 clients can queue #Listening at the address
-
-server_address = "http://192.168.0.5:80/"
-url = server_address + "sensor_readings/"
+ir_status = 0
+ds_status = 0
 
 def cleanData(raw_data):
 	try:
 		data = json.loads(raw_data)
-		#print 'raw_data: ',data, 'normal'
+		print 'raw_data: ',data, 'normal'
 	except Exception as e:
-		#print 'Exception 1:', e
+		print 'Exception 1: json loading exception', e
 		#print raw_data
 		raw_data = raw_data.split('}{')
 		raw_data = '{"' + raw_data[-1][1:]
 		print raw_data, "truncated"
 		data = json.loads(raw_data)
 	return data
-
-def postData(data):
-	try:
-		post(url, data=data)
-		print 'posted', data
-	except Exception as e:
-		print 'Exception 2', e
-		#print "unable to post the data"	
-
 	
-def listener(sensor_conn):
-	while True:
-		try:
-			raw_data = sensor_conn.recv(4096) #4kb of data to be received
-			if raw_data != '':
-				data = cleanData(raw_data)
-				postData(data)
-				
-			else: 
-				print "no data to listener socket"
-				time.sleep(1)
-				
-				
-		except KeyboardInterrupt:
-			print 'Exception 3'
-			sensor_conn.close()
-			listener_socket.close()
-			print 'closing sockets'
-		
-		
-ir_status = 0
-ds_status = 0
-	
-def SensorThread(sensor_conn):
+def SensorThread(conn):
 	while True:
 		global ir_status, ds_status
-		raw_data = sensor_conn.recv(1024) #1kb of data to be received
+		raw_data = conn.recv(1024) #1kb of data to be received
 		if raw_data != '':
 			data = cleanData(raw_data)
 			status = data['status']
@@ -111,13 +72,6 @@ def main():
 		return 'break'
 
 try:
-	sensor_conn, addr = listener_socket.accept()
-	print 'server.py connected to', sensor_conn
-	thread.start_new_thread(listener,(sensor_conn,))
-except Exception as e:
-	print 'Exception 0', e
-
-try:
 #accepting incoming connections
 	sensor_conn, addr = main_socket.accept()#will wait for a new conn to proceed below
 	print 'main.py connected :', sensor_conn
@@ -143,5 +97,4 @@ while True:
 		print 'Exception 3'
 		main_socket.close()
 		sensor_conn.close()
-		listener_socket.close()
 		GPIO.cleanup()

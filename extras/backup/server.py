@@ -20,7 +20,7 @@ def cleanData(raw_data):
 		print 'raw_data: ',data, 'normal'
 	except Exception as e:
 		print 'Exception 1: json loading exception', e
-		#print raw_data
+		print raw_data
 		raw_data = raw_data.split('}{')
 		raw_data = '{"' + raw_data[-1][1:]
 		print raw_data, "truncated"
@@ -34,38 +34,47 @@ def postData(data):
 	except Exception as e:
 		print 'Exception 2', e
 		print "unable to post the data"	
-
-sensor_conn, addr = listener_socket.accept()
-print 'server.py connected to', sensor_conn
 	
-def listener(sensor_conn):
+def clientThread(conn):
+	print "Thread started"
+	while True:
+		try:
+			raw_data = conn.recv(1024) #1kb of data to be received
+			if raw_data != '':
+				data = cleanData(raw_data)
+				postData(data)
+				
+			else: print "no data to listener socket"
+				
+		except KeyboardInterrupt:
+			print 'Exception 3'
+			conn.close()
+			listener_socket.close()
+			print 'closing sockets'
+
+count = 0
+
+try:
+	ds_conn, addr = listener_socket.accept()#will wait for a new conn to proceed below
+	print 'server.py connected to', ds_conn
+	thread.start_new_thread(clientThread,(ds_conn,)) 
+except Exception as e:
+	print 'Exception 4', e
+try:
+#accepting incoming connections
+	ir_conn, addr = listener_socket.accept()#will wait for a new conn to proceed below
+	print 'server.py connected to ', ir_conn
+	thread.start_new_thread(clientThread,(ir_conn,)) #will run parallel with main()
+except Exception as e:
+	print 'Exception 5', e
+	
+while True:
 	try:
-		while True:
-				try:
-					raw_data = sensor_conn.recv(4096) #4kb of data to be received
-					if raw_data != '':
-						data = cleanData(raw_data)
-						postData(data)
-						
-					else: 
-						print "no data to listener socket"
-						time.sleep(1)
-						
-						
-				except KeyboardInterrupt:
-					print 'Exception 3'
-					sensor_conn.close()
-					listener_socket.close()
-					print 'closing sockets'
-		
+		pass
 	except Exception as e:
-		print 'Exception 4', e
-		sensor_conn.close()
+		print e
+		ds_conn.close()
+		ir_conn.close()
 		listener_socket.close()
-		print 'closed sockets'
 		
-
-
-
-	
-
+#to run the program with the threads

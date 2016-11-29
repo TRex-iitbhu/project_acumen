@@ -34,36 +34,35 @@ def postData(data):
 	except Exception as e:
 		print 'Exception 2', e
 		print "unable to post the data"	
-
-sensor_conn, addr = listener_socket.accept()
-print 'server.py connected to', sensor_conn
 	
-def listener(sensor_conn):
-	try:
-		while True:
-				try:
-					raw_data = sensor_conn.recv(4096) #4kb of data to be received
-					if raw_data != '':
-						data = cleanData(raw_data)
-						postData(data)
-						
-					else: 
-						print "no data to listener socket"
-						time.sleep(1)
-						
-						
-				except KeyboardInterrupt:
-					print 'Exception 3'
-					sensor_conn.close()
-					listener_socket.close()
-					print 'closing sockets'
-		
-	except Exception as e:
-		print 'Exception 4', e
-		sensor_conn.close()
-		listener_socket.close()
-		print 'closed sockets'
-		
+
+try:
+	sensor_conn, addr = listener_socket.accept()
+	print 'server.py connected to', sensor_conn
+	while True:
+			try:
+				raw_data = sensor_conn.recv(4096) #4kb of data to be received
+				if raw_data != '':
+					data = cleanData(raw_data)
+					postData(data)
+					
+				else: 
+					print "no data to listener socket"
+					time.sleep(1)
+					
+					
+			except KeyboardInterrupt:
+				print 'Exception 3'
+				sensor_conn.close()
+				listener_socket.close()
+				print 'closing sockets'
+	
+except Exception as e:
+	print 'Exception 4', e
+	sensor_conn.close()
+	listener_socket.close()
+	print 'closed sockets'
+	
 
 
 
