@@ -90,7 +90,7 @@ $(function() {
 
 function startRefresh() {
   setTimeout(startRefresh,500);
-  $.get('/matUpdateWeb/1', function(data) {
+  $.get('/blockCheck/1', function(data) {
     var coordinate = '('+data[1]+','+data[4]+')';
     console.log(coordinate);
     var c = "z-depth-3 blue darken-1";
@@ -106,7 +106,7 @@ function startRefresh() {
     }
 
   });
-  $.get('/matUpdateWeb/2', function(data) {
+  $.get('/blockCheck/2', function(data) {
     var coordinate = '('+data[1]+','+data[4]+')';
     console.log(coordinate);
     var c = "z-depth-3  purple lighten-1";

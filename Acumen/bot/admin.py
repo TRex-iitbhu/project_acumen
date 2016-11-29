@@ -5,7 +5,7 @@ from .models import *
 
 
 
-admin.site.register(LDR)
+
 admin.site.register(SwarmBot)
 
 admin.site.register(DS)
