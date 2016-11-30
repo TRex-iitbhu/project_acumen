@@ -119,6 +119,7 @@ def SensorThread(sensor_conn):#update the sensor statuses
 
 
 def localisationFuction():
+	print "localisation started!!!!"
 	url = server_address+"blockCheck/%s/"			
 	c1 = get(url %1)
 	c2 = get(url %2)
@@ -130,11 +131,74 @@ def localisationFuction():
 	#now check the orientation 
 	if y1%2 == 0: moving = "up"
 	else: moving = "down"
-	
+	print "moving: ", moving
 	if moving == "up":
-		pass
+		m = (3/20) * abs(y2-y1)
+		n = (3/20) * abs(x1-x2)
+		print "x = ",n,"y = ", m 
+		if y2<y1:
+			print  "y2<y1"
+			if x2<x1:
+				# move x1-x2 up
+				ForwardStep(n)
+				print 'localisation: moving forward'
+				
+			elif x2>x1:
+				#move x2-x1 down
+				BackwardStep(n)
+				print 'localisation: moving backward'
+
+			Left90()
+			ForwardStep(m)
+			print 'localisation: moving forward'
+
+			#move y1-y2 left
+				 
+		if y2>y1:
+			print "y2>y1"
+			if x2<x1:
+				#move x1-x2  up 
+				ForwardStep(n)
+				print 'localisation: moving forward'
+	
+			elif x2>x1:
+				#move x2-x1 down 
+				BackwardStep(n)
+				print 'localisation: moving backward'
+
+			Right90()
+			ForwardStep(m)
+			print 'localisation: moving forward'
+
+			#move y2-y1 right
+						
 	elif moving == "down":
-		pass
+		m = (3/20) * abs(y2-y1)
+		n = (3/20) * abs(x1-x2) 
+		if y2<y1:
+			if x2<x1:
+				# move x1-x2 up
+				BackwardStep(n)
+				
+			elif x2>x1:
+				#move x2-x1 down
+				ForwardStep(n)
+				
+			Right90()
+			ForwardStep(m)
+			#move y1-y2 left
+				 
+		if y2>y1:
+			if x2<x1:
+				#move x1-x2  down 
+				BackwardStep(n)
+				
+			elif x2>x1:
+				#move x2-x1 up 
+				ForwardStep(n)
+			Left90()
+			ForwardStep(m)
+			#move y2-y1 right
 		
 
 def main():
@@ -159,14 +223,19 @@ def main():
 				print 'got a wall bro!'
 				if flag:
 					Left90()
+					if patch_status: localisationFuction()
+					
 					ForwardStep(3) #one full rotation only
 					block += 1 #forward += 3
+						
 					Left90()
 					flag = False
 					print 'left turn'
 				else:
 					Right90() 
-					ForwardStep(3)
+					if patch_status: localisationFuction()
+					
+					ForwardStep(3) #one full rotation only
 					block += 1 #forward += 3
 					Right90()
 					flag = True
@@ -179,6 +248,7 @@ def main():
 					block += 1
 					forwardCount = 0
 				ForwardStep(1)
+
 					
 		except KeyboardInterrupt:
 			print "closing sockets"
