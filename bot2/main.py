@@ -21,8 +21,7 @@ listener_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 listener_socket.bind(listener_address) #binding socket to a address.
 listener_socket.listen(3) #3 clients can queue #Listening at the address
 
-server_address = "http://192.168.0.5:80/"
-url = server_address + "sensor_readings/"
+server_address = "http://192.168.1.103:80/"
 ir_status = 0
 ds_status = 0
 patch_status = 0
@@ -45,6 +44,7 @@ def postData(data):
 	if data['reading'] == 0:
 		return None #don't post it must be ir
 	try:
+		url = server_address + "sensor_readings/2/"
 		post(url, data=data)
 		#print 'posted', data
 	except Exception as e:
@@ -53,18 +53,18 @@ def postData(data):
 
 def matUpdate(block):
 	global lastBlock
-	matUrl = server_address + "matrixUpdate/1/" +str(block)+"/"
-	if block == lastBlock:
+	matUrl = server_address + "matrixUpdate/2/" +str(block)+"/" #/1/ for bot 1
+	if block == lastBlock: #not first block, initially block=lastblock but i want to show that too.
 		return None #don't post
 	try:
 		get(matUrl)
 		lastBlock = block
-		print 'bot in', block,
+		print 'bot in', block
 	except Exception as e:
 		print e
 		
-def patchstatus():
-	url = server_address + "patchStatus/2/"
+def patchStatus(): #check patch status of bot 1
+	url = server_address + "patchStatus/1/" #/2/ for bot 1
 	global patch_status
 	try: 	
 		status = get(url)
@@ -72,8 +72,8 @@ def patchstatus():
 	except Exception as e:
 		print e
 
-def patchStatusUpdate():
-	url = server_address + "patchStatusUpdate/1/"
+def patchStatusUpdate(): #update own patch status
+	url = server_address + "patchStatusUpdate/2/1/" #/1/ for bot 1
 	try:
 		get(url)# update the patch status of this robot 
 	except Exception as e:
@@ -119,26 +119,103 @@ def SensorThread(sensor_conn):#update the sensor statuses
 
 
 def localisationFuction():
+	global block
+	print "localisation started!!!!"
 	url = server_address+"blockCheck/%s/"			
 	c1 = get(url %1)
 	c2 = get(url %2)
 	x1 = int(c1.text[1])
-	x2 = int(c2.text[4])
-	y1 = int(c1.text[1])
-	y2 = int(c1.text[4])
+	x2 = int(c2.text[1])
+	y1 = int(c1.text[4])
+	y2 = int(c2.text[4])
+	print x1, y1, "and ", x2, y2
 	#got the coordinates of both the bots
 	#now check the orientation 
-	if y1%2 == 0: moving = "up"
-	else: moving = "down"
-	
+	if y2%2 == 0: moving = "down"
+	else: moving = "up"
+	print "moving: ", moving
+	m = 3 * abs(y2-y1)
+	n = 3 * abs(x1-x2)
 	if moving == "up":
-		pass
+		print "x = ",abs(x1-x2),"y = ", abs(x1-x2) 
+		if y2<y1:
+			print  "y2<y1"
+			if x2<x1:
+				# move x1-x2 up
+				print 'localisation: moving forward'
+				ForwardStep(n)
+				block += n
+				
+			elif x2>x1:
+				#move x2-x1 down
+				print 'localisation: moving backward'
+				BackwardStep(n)
+				block -= n
+				
+			print 'turning left90'
+			Left90()
+			print 'localisation: moving forward'
+			ForwardStep(m)
+			
+
+			#move y1-y2 left
+				 
+		if y2>y1:
+			print "y2>y1"
+			if x2<x1:
+				#move x1-x2  up 
+				print 'localisation: moving forward'
+				ForwardStep(n)
+				block += n
+				
+	
+			elif x2>x1:
+				#move x2-x1 down 
+				print 'localisation: moving backward'
+				BackwardStep(n)
+				block -= n
+				
+			print 'turning Right90'
+			Right90()
+			print 'localisation: moving forward'
+			ForwardStep(m)
+			
+
+			#move y2-y1 right
+						
 	elif moving == "down":
-		pass
+		if y2<y1:
+			if x2<x1:
+				# move x1-x2 up
+				print 'taking backward step'
+				BackwardStep(n)
+				
+			elif x2>x1:
+				#move x2-x1 down
+				print 'taking forward step'
+				ForwardStep(n)
+			
+			print 'taking right 90'
+			Right90()
+			print 'taking forward step '
+			ForwardStep(m)
+			#move y1-y2 left
+				 
+		if y2>y1:
+			if x2<x1:
+				#move x1-x2  down 
+				BackwardStep(n)
+				
+			elif x2>x1:
+				#move x2-x1 up 
+				ForwardStep(n)
+			Left90()
+			ForwardStep(m)
+			#move y2-y1 right
 		
 
 def main():
-	flag = True
+	flag = True 
 	forwardCount = 0
 	global block, patch_status
 	while True:
@@ -146,10 +223,12 @@ def main():
 			if patch_status: 
 				print 'other bot has found the patch, calling localisationFucntion()'
 				localisationFuction()
+				patchStatusUpdate()
+				print 'updating patch status'
 				print 'work done breaking the main function!'
 				break
 			
-			if ir_status:
+			elif ir_status:
 				print 'Patch found'
 				patchStatusUpdate()
 				print 'breaking the main function'
@@ -159,14 +238,20 @@ def main():
 				print 'got a wall bro!'
 				if flag:
 					Left90()
+					if patch_status: localisationFuction()
+					
 					ForwardStep(3) #one full rotation only
 					block += 1 #forward += 3
+						
 					Left90()
 					flag = False
 					print 'left turn'
 				else:
 					Right90() 
-					ForwardStep(3)
+					if patch_status: localisationFuction()
+					print 'taking Forward step'
+					ForwardStep(3) #one full rotation only
+					
 					block += 1 #forward += 3
 					Right90()
 					flag = True
@@ -179,6 +264,7 @@ def main():
 					block += 1
 					forwardCount = 0
 				ForwardStep(1)
+
 					
 		except KeyboardInterrupt:
 			print "closing sockets"
@@ -204,6 +290,17 @@ except Exception as e:
 	
 
 try:
+	url = server_address + "patchStatusUpdate/2/0/" #/1/ for bot 1
+	try:
+		get(url)# update the patch status of this robot as 0
+		print 'patch status set to False'
+		url = server_address + "sensor_readings/2/"
+		post(url, data={'sensor':'ir', 'reading':'0','status':'0'})
+		print 'IR status set to False'
+		matUrl = server_address + "matrixUpdate/2/0/"
+		print 'initial block set as 0'
+	except Exception as e:
+		print e
 	main()
 	'''
 	if main()=='break':

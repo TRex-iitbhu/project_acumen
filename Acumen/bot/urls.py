@@ -14,8 +14,8 @@ urlpatterns = [
 ###Raspi's data to the server
 
     url(r'^matrixUpdate/(?P<swarmBotId>\d+)/(?P<block>\d+)/$', matrixUpdate, name='matrixUpdate'),
-    url(r'^patchStatusUpdate/(?P<swarmBotId>\d+)/$', patchStatusUpdate, name='patchStatusUpdate'),
-    url(r'^sensor_readings/$', sensorReadView), #coming from raspis
+    url(r'^patchStatusUpdate/(?P<swarmBotId>\d+)/(?P<boolint>\d+)/$', patchStatusUpdate, name='patchStatusUpdate'),
+    url(r'^sensor_readings/(?P<swarmBotId>\d+)/$', sensorReadView), #coming from raspis
 
 
 ###Ajax in sensor.html

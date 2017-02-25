@@ -10,8 +10,13 @@ def matrixUpdate(request,swarmBotId,block):
     block = int(block)
     row = rowList[block % 6]
     col = int(block / 3)
-    sb.row = row
-    sb.col = col
+    if swarmBotId == '1':
+        sb.row = row
+        sb.col = col
+    else:
+        print (swarmBotId)
+        sb.row = 2 - row
+        sb.col = 4 - col
     sb.save()
     print (swarmBotId, row, col)
     return HttpResponse('done')
@@ -31,19 +36,19 @@ def sensorView(request):
 IR & DS readings saving to the database
 '''
 @csrf_exempt
-def sensorReadView(request):
+def sensorReadView(request, swarmBotId):
     if request.method == 'POST':
         post = request.POST
         status = int(post.get('status'))
         sensor = post.get('sensor')
         if sensor == 'ir':
-            Bot = SwarmBot.objects.get(swarmBotId=1)
+            Bot = SwarmBot.objects.get(swarmBotId=swarmBotId)
             ir = IR.objects.get(swarmBot = Bot)
             r = post.get('reading')
             ir.reading = True if int(r)>0 else False
             ir.save()
         if sensor == 'ds':
-            Bot = SwarmBot.objects.get(swarmBotId=1)
+            Bot = SwarmBot.objects.get(swarmBotId=swarmBotId)
             ds = DS.objects.get(swarmBot = Bot)
             reading = float(post.get('reading'))
             ds.reading = reading
@@ -53,9 +58,12 @@ def sensorReadView(request):
 '''
 Patch status update
 '''
-def patchStatusUpdate(request,swarmBotId):
+def patchStatusUpdate(request,swarmBotId,boolint):
     sb = SwarmBot.objects.get(swarmBotId=swarmBotId)
-    sb.patchStatus = True
+    if int(boolint):
+        sb.patchStatus = True
+    else:
+        sb.patchStatus = False
     sb.save()
     return HttpResponse('done')
 

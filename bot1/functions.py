@@ -105,7 +105,7 @@ def Right90():
             for pin in range(4): #we have 4 pins to loop through
                 GPIO.output(RControlPin[pin], seq[halfstep][pin])
                 GPIO.output(LControlPin[pin], seq[-halfstep][pin])#to be tested.
-            time.sleep(0.001)
+            time.sleep(0.002)
     '''
     extra steps logic to be written
     '''
@@ -117,7 +117,7 @@ def Left90():
             for pin in range(4): #we have 4 pins to loop through
                 GPIO.output(RControlPin[pin], seq[-halfstep][pin])
                 GPIO.output(LControlPin[pin], seq[halfstep][pin])#to be tested.
-            time.sleep(0.001)
+            time.sleep(0.002)
 
 '''
 ForwardStep = 1 rotation forward
@@ -133,17 +133,19 @@ def ForwardStep(i):
             for pin in range(4): #we have 4 pins to loop through
                 GPIO.output(RControlPin[pin], seq[halfstep][pin])
                 GPIO.output(LControlPin[pin], seq[halfstep][pin])
-            time.sleep(0.001)
+            time.sleep(0.002)
 
     #GPIO.output(FLed, 0)
 
-def BackwardStep(distance):
-    for i in range(512): # 1 rotation
-        for halfstep in range(8): #we have 8 halfsteps
-            for pin in range(4): #we have 4 pins to loop through
-                GPIO.output(RControlPin[pin], seq[-halfstep][pin])
-                GPIO.output(LControlPin[pin], seq[-halfstep][pin])
-            time.sleep(0.001)
+def BackwardStep(i):
+	
+	n = int(i*1.25*512)/3 
+	for i in range(512): # 1 rotation
+		for halfstep in range(8): #we have 8 halfsteps
+			for pin in range(4): #we have 4 pins to loop through
+				GPIO.output(RControlPin[pin], seq[-halfstep][pin])
+				GPIO.output(LControlPin[pin], seq[-halfstep][pin])
+			time.sleep(0.002)
 '''
 while True:
 	try:
