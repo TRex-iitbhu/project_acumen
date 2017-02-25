@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta http-equiv="X-UA-Compatible" content="ie=edge">
+  <!-- <meta http-equiv="refresh" content="2"> -->
+  <title>Acumen</title>
+  <link rel="stylesheet" href="/static/css/materialize.min.css">
+  <!-- <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet"> -->
+</head>
+<body>
+  <div class="container">
+    <div>
+
+  <h4>
+    <a href="/" class="btn waves-effect waves-light blue">Home</a>
+    Sensor Readings
+  </h4>
+
+  <table>
+        <thead>
+          <tr>
+              <th data-field="id">Swarm Bot Name</th>
+              <th data-field="name">Swarm Bot Id</th>
+              <th data-field="price">IR status</th>
+              <th data-field="price">DS reading</th>
+              <th data-field="price">Patch status</th>
+
+          </tr>
+        </thead>
+
+        <tbody>
+
+          {% for swarmBot in swarmBots %}
+          <tr>
+            <td>{{swarmBot.swarmBotName}}</td>
+            <td>{{swarmBot.swarmBotId}}</td>
+            <td id="ir_{{forloop.counter}}">{{swarmBot.ir.reading}}</td>
+            <td id="ds_{{forloop.counter}}"> {{ swarmBot.ds.reading }}</td>
+            <td id="patchStatus_{{forloop.counter}}">{{swarmBot.patchStatus}}</td>
+          </tr>
+
+        {% endfor %}
+      </tbody>
+
+      </table>
+      <br><br>
+    </div>
+  </div>
+    <div class="row">
+
+    <div class="col s4">
+
+    </div>
+
+      <script type="text/javascript" src="/static/js/jquery-2.1.1.min.js"></script>
+      <script src="/static/js/materialize.min.js" charset="utf-8"></script>
+<script type="text/javascript">
+// $(function() {
+//   startRefresh();
+// });
+//
+// function startRefresh() {
+//   setTimeout(startRefresh,1000);
+//   $.get('/sensors/', function(data) {
+//       // $('#content_div_id').html(data);
+//     console.log(data);
+//   });
+// }
+setInterval(function(){
+   $('#ds_1').load('/ds_reading/1');
+   $('#ds_2').load('/ds_reading/2');
+      $('#ir_1').load('/ir_reading/1');
+      $('#ir_2').load('/ir_reading/2');
+      $('#patchStatus_1').load('/patchStatus/1');
+      $('#patchStatus_2').load('/patchStatus/2');
+}, 1000)
+
+</script>
+</body>
+</html>
