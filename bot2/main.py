@@ -21,12 +21,13 @@ listener_socket.setsockopt(SOL_SOCKET, SO_REUSEADDR, 1)
 listener_socket.bind(listener_address) #binding socket to a address.
 listener_socket.listen(3) #3 clients can queue #Listening at the address
 
-server_address = "http://192.168.1.103:80/"
+server_address = "http://192.168.0.10:8000/"
 ir_status = 0
 ds_status = 0
 patch_status = 0
 block = 0
 lastBlock = 0
+
 def cleanData(raw_data):
 	try:
 		data = json.loads(raw_data)
@@ -225,7 +226,8 @@ def main():
 				localisationFuction()
 				patchStatusUpdate()
 				print 'updating patch status'
-				print 'work done breaking the main function!'
+				print 'work done SLEEP FOR 10 SECS the break the main function!'
+				time.sleep(10)
 				break
 			
 			elif ir_status:
@@ -270,11 +272,14 @@ def main():
 			print "closing sockets"
 			main_socket.close()
 			sensor_conn.close()
-			print "closed"
+			print "closed and now sleeping for 10 secs"
+			time.sleep(10)
 			break
 
 try:
+	print("\n \n MAIN SCRIPT  \n \n")
 	sensor_conn, addr = listener_socket.accept()
+	
 	print 'listener connected to sensor ', sensor_conn
 	thread.start_new_thread(listener,(sensor_conn,))
 except Exception as e:
@@ -293,7 +298,7 @@ try:
 	url = server_address + "patchStatusUpdate/2/0/" #/1/ for bot 1
 	try:
 		get(url)# update the patch status of this robot as 0
-		print 'patch status set to False'
+		print 'Patch status set to False'
 		url = server_address + "sensor_readings/2/"
 		post(url, data={'sensor':'ir', 'reading':'0','status':'0'})
 		print 'IR status set to False'
@@ -315,6 +320,8 @@ try:
 	'''
 except KeyboardInterrupt:
 	print 'Exception 3'
+	print 'sleeping for 10 secs'
+	time.sleep(10)
 	main_socket.close()
 	sensor_conn.close()
 	listener_socket.close()

@@ -7,7 +7,7 @@ import time
 from functions import irMeasure, ForwardStep, BackwardStep, Right90, Left90, distanceMeasure
 
 GPIO.setmode(GPIO.BCM)
-
+print "\n \nSENSOR SCRIPT \n \n"
 def ds():
 	ds_threshold = 10	 # to be caliberated
 	while True:
