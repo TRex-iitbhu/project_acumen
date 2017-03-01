@@ -9,6 +9,7 @@ urlpatterns = [
 ###webpages
     url(r'^$', index, name = 'index'),
     url(r'^sensors/$', sensorView, name='sensorView'),
+    url(r'^refresh/$', refresh, name='refresh'),
 
 
 ###Raspi's data to the server

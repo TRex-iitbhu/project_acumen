@@ -3,6 +3,24 @@ from django.views.decorators.csrf import csrf_exempt
 from .models import *
 global matrix
 
+def refresh(request):
+    for ir in IR.objects.all():
+        ir.reading = False
+        ir.save()
+    for bot in SwarmBot.objects.all():
+        bot.patchStatus = False
+        if bot.swarmBotId == 1:
+            bot.row = 0
+            bot.col = 0
+        else:
+            bot.row = 2
+            bot.col = 4
+        bot.save()
+
+    return HttpResponse("<h3> Data refreshed </h3>")
+
+
+
 @csrf_exempt
 def matrixUpdate(request,swarmBotId,block):
     sb = SwarmBot.objects.get(swarmBotId=swarmBotId)
